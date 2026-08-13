@@ -1,1 +1,65 @@
-[]
+[
+  {
+    "slug": "royal-national-park",
+    "section": "photography",
+    "title": "皇家国家公园",
+    "date": "2026-08-13",
+    "summary": "一组拍摄于皇家国家公园海岸的 4×5 摄影作品。",
+    "keywords": ["大画幅", "4×5", "皇家国家公园", "Royal National Park", "海岸", "悉尼"],
+    "published": true,
+    "category": "摄影作品",
+    "images": [
+      {
+        "src": "images/royal-national-park/rnp-1.jpg",
+        "alt": "岩石海岸向海面延伸，水面上横跨着一列方形踏石，右侧是低矮灌木。",
+        "label": "皇家国家公园 · 01"
+      },
+      {
+        "src": "images/royal-national-park/rnp-2.jpg",
+        "alt": "从高处俯瞰层叠海崖，岩壁沿画面右侧延伸，左侧是海面和礁石。",
+        "label": "皇家国家公园 · 02"
+      },
+      {
+        "src": "images/royal-national-park/rnp-3.jpg",
+        "alt": "海崖和礁石从右侧向远处延伸，浪花沿左侧岩岸展开。",
+        "label": "皇家国家公园 · 03"
+      },
+      {
+        "src": "images/royal-national-park/rnp-4.jpg",
+        "alt": "从沙岩高地俯瞰海湾，蓝绿色海水连接远处沙滩与低矮灌木。",
+        "label": "皇家国家公园 · 04"
+      },
+      {
+        "src": "images/royal-national-park/rnp-5.jpg",
+        "alt": "海面占据左侧，红褐色岩岸和灌木从前景延伸至远处海崖。",
+        "label": "皇家国家公园 · 05"
+      },
+      {
+        "src": "images/royal-national-park/rnp-6.jpg",
+        "alt": "横幅画面中，开阔海面与红褐色岩岸平行延伸至远处海崖。",
+        "label": "皇家国家公园 · 06"
+      },
+      {
+        "src": "images/royal-national-park/rnp-7.jpg",
+        "alt": "明亮的白色沙岩平台位于前景，后方是深蓝海面与清晰地平线。",
+        "label": "皇家国家公园 · 07"
+      },
+      {
+        "src": "images/royal-national-park/rnp-8.jpg",
+        "alt": "从高处俯瞰海湾，蓝绿色海水、远处沙滩和红褐色沙岩台地依次展开。",
+        "label": "皇家国家公园 · 08"
+      },
+      {
+        "src": "images/royal-national-park/rnp-9.jpg",
+        "alt": "横幅画面中，海面和岩石海岸向远方延伸，右侧覆盖低矮灌木。",
+        "label": "皇家国家公园 · 09"
+      }
+    ],
+    "location": "Royal National Park, NSW",
+    "year": "年份待补充",
+    "process": "4×5 · FILM SCAN · FULL FRAME",
+    "body": [
+      "这组作品拍摄于皇家国家公园。网页图像由原始扫描文件单独导出，保留完整画幅，不作裁切。"
+    ]
+  }
+]

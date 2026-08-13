@@ -19,22 +19,36 @@ function Arrow() {
 }
 
 function PhotographyPreview({ open, openEntry }: { open: () => void; openEntry: (slug: string) => void }) {
-  const works = entriesFor("photography").filter((entry) => entry.category === "摄影作品");
+  const works = entriesFor("photography")
+    .filter((entry) => entry.category === "摄影作品")
+    .flatMap((entry) => entry.images.map((image) => ({ entry, image })));
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const current = works[currentIndex];
 
   useEffect(() => {
-    if (works.length < 2) return;
+    if (works.length < 2 || isPaused) return;
     const timer = window.setInterval(() => setCurrentIndex((index) => (index + 1) % works.length), 8_000);
     return () => window.clearInterval(timer);
-  }, [works.length]);
+  }, [isPaused, works.length]);
 
   const show = (direction: -1 | 1) => {
+    if (works.length === 0) return;
     setCurrentIndex((index) => (index + direction + works.length) % works.length);
   };
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (works.length === 0) return;
+      if (event.key === "ArrowLeft") setCurrentIndex((index) => (index - 1 + works.length) % works.length);
+      if (event.key === "ArrowRight") setCurrentIndex((index) => (index + 1) % works.length);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [works.length]);
+
   return (
-    <div className="preview photography-preview">
+    <div className="preview photography-preview" onMouseEnter={() => setIsPaused(true)} onMouseLeave={() => setIsPaused(false)}>
       <div className="preview-kicker">
         <span>{current ? `SELECTED WORK · ${String(currentIndex + 1).padStart(3, "0")}` : "EXHIBITION WALL · LAYOUT STUDY"}</span>
         <span>4 × 5</span>
@@ -44,21 +58,21 @@ function PhotographyPreview({ open, openEntry }: { open: () => void; openEntry: 
         <button
           className="photograph-mat"
           type="button"
-          onClick={() => current ? openEntry(current.slug) : open()}
-          aria-label={current ? `阅读摄影作品：${current.title}` : "进入大画幅摄影栏目"}
+          onClick={() => current ? openEntry(current.entry.slug) : open()}
+          aria-label={current ? `阅读摄影系列：${current.entry.title}` : "进入大画幅摄影栏目"}
         >
           <img
-            key={current?.slug ?? "placeholder"}
-            src={current ? `./${current.image}` : "./images/hero-placeholder.jpg"}
-            alt={current?.alt ?? "清晨平静海湾中的旧木栈桥——首页摄影占位图"}
+            key={current ? `${current.entry.slug}-${current.image.src}` : "placeholder"}
+            src={current ? `./${current.image.src}` : "./images/hero-placeholder.jpg"}
+            alt={current?.image.alt ?? "清晨平静海湾中的旧木栈桥——首页摄影占位图"}
           />
         </button>
         <figcaption>
           <div>
-            <p className="work-title">{current?.title ?? "首页视觉占位图"}</p>
-            <p>{current ? [current.location, current.year].filter(Boolean).join(" · ") : "正式摄影作品录入后替换"}</p>
+            <p className="work-title">{current?.image.label ?? "首页视觉占位图"}</p>
+            <p>{current ? [current.entry.title, current.entry.location, current.entry.year].filter(Boolean).join(" · ") : "正式摄影作品录入后替换"}</p>
           </div>
-          <p className="work-process">{current?.process ?? "FULL FRAME · NO CROP"}</p>
+          <p className="work-process">{current?.entry.process ?? "FULL FRAME · NO CROP"}</p>
         </figcaption>
       </figure>
 
@@ -291,10 +305,17 @@ function EntryView({ entry, navigate }: { entry: ArchiveEntry; navigate: (view: 
         <p>{entry.summary}</p>
       </header>
       {photograph && (
-        <figure className="entry-photograph">
-          <img src={`./${photograph.image}`} alt={photograph.alt} />
-          <figcaption>{photograph.location} · {photograph.year}<span>{photograph.process}</span></figcaption>
-        </figure>
+        <div className="entry-photo-series">
+          {photograph.images.map((image, index) => (
+            <figure className="entry-photograph" key={image.src}>
+              <img src={`./${image.src}`} alt={image.alt} loading={index === 0 ? "eager" : "lazy"} decoding="async" />
+              <figcaption>
+                <span>{image.label} · {photograph.location} · {photograph.year}</span>
+                <span>{photograph.process}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       )}
       {devlogImage && <img className="entry-devlog-image" src={`./${devlogImage.image}`} alt={devlogImage.imageAlt ?? "开发日志配图"} />}
       <div className="prose">

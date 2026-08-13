@@ -34,8 +34,13 @@
   "keywords": ["大画幅", "海岸"],
   "published": true,
   "category": "摄影作品",
-  "image": "images/work-001.jpg",
-  "alt": "照片中实际可见内容的准确描述",
+  "images": [
+    {
+      "src": "images/work-001.jpg",
+      "alt": "照片中实际可见内容的准确描述",
+      "label": "作品名称 · 01"
+    }
+  ],
   "location": "Sydney",
   "year": "2026",
   "process": "4×5 COLOR NEGATIVE · SCAN",

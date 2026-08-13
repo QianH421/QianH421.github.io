@@ -53,16 +53,24 @@ test("source contains real keyboard, search, archive, section and RSS navigation
   assert.doesNotMatch(source, /从取景框之外开始|慢工具与当代生活|正在建立相机位移/);
 });
 
-test("content stays centralized, validated and empty until real work is supplied", async () => {
+test("real photography content stays centralized, validated and web-sized", async () => {
   const [contentSource, entriesJson, siteJson] = await Promise.all([
     readFile(new URL("app/content.ts", projectRoot), "utf8"),
     readFile(new URL("content/entries.json", projectRoot), "utf8"),
     readFile(new URL("content/site.json", projectRoot), "utf8"),
   ]);
 
-  assert.deepEqual(JSON.parse(entriesJson), []);
+  const entries = JSON.parse(entriesJson);
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].slug, "royal-national-park");
+  assert.equal(entries[0].images.length, 9);
+  for (const image of entries[0].images) {
+    const file = await stat(new URL(`public/${image.src}`, projectRoot));
+    assert.ok(file.size < 2_000_000, `${image.src} should be web-sized`);
+  }
   assert.equal(JSON.parse(siteJson).title, "个人档案");
   assert.match(contentSource, /validateEntries\(rawEntries\)/);
+  assert.match(contentSource, /至少需要一张摄影图片/);
   assert.match(contentSource, /slug 格式不正确/);
   assert.match(contentSource, /日期格式不正确/);
   assert.match(contentSource, /public\/images\/ 下的安全网页图片路径/);

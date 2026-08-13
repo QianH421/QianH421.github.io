@@ -27,8 +27,10 @@ export default defineConfig(({ mode }) => {
           site = validateSite(rawSite);
           entries = validateEntries(rawEntries);
           await Promise.all(entries.filter((entry) => entry.published).flatMap((entry) => {
-            const image = entry.section === "photography" ? entry.image : entry.section === "devlog" ? entry.image : undefined;
-            return image ? [access(resolve("public", image))] : [];
+            if (entry.section === "photography") {
+              return entry.images.map((image) => access(resolve("public", image.src)));
+            }
+            return entry.section === "devlog" && entry.image ? [access(resolve("public", entry.image))] : [];
           }));
         },
         transformIndexHtml(html) {

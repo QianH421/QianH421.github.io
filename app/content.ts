@@ -34,8 +34,11 @@ export type WritingEntry = BaseEntry & {
 export type PhotographyEntry = BaseEntry & {
   section: "photography";
   category: (typeof photographyCategories)[number];
-  image: string;
-  alt: string;
+  images: Array<{
+    src: string;
+    alt: string;
+    label: string;
+  }>;
   location: string;
   year: string;
   process: string;
@@ -163,10 +166,18 @@ export function validateEntries(value: unknown): ArchiveEntry[] {
       if (!writingCategories.includes(candidate.category as WritingEntry["category"])) throw new Error(`${label}的文字类别不正确`);
     } else if (candidate.section === "photography") {
       if (!photographyCategories.includes(candidate.category as PhotographyEntry["category"])) throw new Error(`${label}的摄影类别不正确`);
-      for (const key of ["image", "alt", "location", "year", "process"] as const) {
+      for (const key of ["location", "year", "process"] as const) {
         if (typeof candidate[key] !== "string" || !candidate[key].trim()) throw new Error(`${label}缺少 ${key}`);
       }
-      validateImagePath(candidate.image as string, label);
+      if (!Array.isArray(candidate.images) || candidate.images.length === 0) throw new Error(`${label}至少需要一张摄影图片`);
+      candidate.images.forEach((image, imageIndex) => {
+        const imageLabel = `${label}的第 ${imageIndex + 1} 张图片`;
+        if (!isRecord(image)) throw new Error(`${imageLabel}必须是对象`);
+        for (const key of ["src", "alt", "label"] as const) {
+          if (typeof image[key] !== "string" || !image[key].trim()) throw new Error(`${imageLabel}缺少 ${key}`);
+        }
+        validateImagePath(image.src as string, imageLabel);
+      });
     } else if (candidate.section === "devlog") {
       if (typeof candidate.version !== "string" || !candidate.version.trim()) throw new Error(`${label}缺少 version`);
       if (candidate.image !== undefined && typeof candidate.image !== "string") throw new Error(`${label}的 image 必须是文字路径`);

@@ -330,7 +330,6 @@ a:focus-visible {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: saturate(0.84) contrast(0.97);
   box-shadow: 0 10px 32px rgba(18, 20, 20, 0.13);
 }
 
@@ -1111,6 +1110,16 @@ a:focus-visible {
 .entry-photograph {
   margin: 0 auto clamp(50px, 9vh, 110px);
   text-align: center;
+}
+
+.entry-photo-series {
+  display: grid;
+  gap: clamp(56px, 12vh, 150px);
+  margin-bottom: clamp(70px, 12vh, 150px);
+}
+
+.entry-photo-series .entry-photograph {
+  margin-bottom: 0;
 }
 
 .entry-photograph img {
