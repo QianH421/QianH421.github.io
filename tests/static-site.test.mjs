@@ -11,7 +11,7 @@ test("build emits a self-contained GitHub Pages homepage", async () => {
   assert.match(html, /<title>个人档案｜文字、摄影与模拟器<\/title>/);
   assert.match(html, /src="\.\/assets\//);
   assert.match(html, /href="\.\/assets\//);
-  assert.match(html, /content="\.\/og\.jpg"/);
+  assert.match(html, /content="(?:\.\/|https:\/\/[^"]+\/)og\.jpg"/);
   assert.match(html, /rel="alternate" type="application\/rss\+xml"/);
   assert.doesNotMatch(html, /_next|_vinext|__[A-Z_]+__/);
 
