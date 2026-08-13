@@ -102,8 +102,11 @@ function AboutPreview({ open }: { open: () => void }) {
       </div>
       <div className="about-composition">
         <div className="about-image">
-          <img src="./images/hero-placeholder.jpg" alt="个人档案预览占位照片" />
-          <span>PORTRAIT / WORKSPACE · 待替换</span>
+          <img
+            src="./images/royal-national-park/rnp-1.jpg"
+            alt="皇家国家公园摄影作品 RNP 1"
+          />
+          <span>RNP 1 · ROYAL NATIONAL PARK</span>
         </div>
         <div className="about-copy">
           <p className="eyebrow">一个缓慢积累的个人档案</p>
