@@ -1,0 +1,43 @@
+import assert from "node:assert/strict";
+import { access, readFile, stat } from "node:fs/promises";
+import test from "node:test";
+
+const projectRoot = new URL("../", import.meta.url);
+
+test("build emits a self-contained GitHub Pages homepage", async () => {
+  const html = await readFile(new URL("dist/index.html", projectRoot), "utf8");
+
+  assert.match(html, /<html lang="zh-CN">/);
+  assert.match(html, /<title>个人档案｜文字、摄影与模拟器<\/title>/);
+  assert.match(html, /src="\.\/assets\//);
+  assert.match(html, /href="\.\/assets\//);
+  assert.match(html, /content="\.\/og\.jpg"/);
+  assert.doesNotMatch(html, /_next|_vinext|__OG_IMAGE__/);
+
+  const [hero, socialCard] = await Promise.all([
+    stat(new URL("dist/images/hero-placeholder.jpg", projectRoot)),
+    stat(new URL("dist/og.jpg", projectRoot)),
+  ]);
+
+  assert.ok(hero.size < 500_000, "homepage photograph should be web-sized");
+  assert.ok(socialCard.size < 300_000, "social card should be web-sized");
+
+  await Promise.all([
+    access(new URL("dist/images/hero-placeholder.jpg", projectRoot)),
+    access(new URL("dist/og.jpg", projectRoot)),
+    access(new URL("dist/favicon.svg", projectRoot)),
+    access(new URL("dist/.nojekyll", projectRoot)),
+  ]);
+});
+
+test("source contains accessible, non-pointer-only navigation", async () => {
+  const source = await readFile(
+    new URL("app/ArchiveHome.tsx", projectRoot),
+    "utf8",
+  );
+
+  assert.match(source, /role="tablist"/);
+  assert.match(source, /aria-selected=\{isActive\}/);
+  assert.match(source, /onFocus=\{\(\) => setActive\(section\.id\)\}/);
+  assert.match(source, /onClick=\{\(\) => setActive\(section\.id\)\}/);
+});
