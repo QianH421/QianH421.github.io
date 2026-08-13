@@ -13,7 +13,7 @@ test("build emits a self-contained GitHub Pages homepage", async () => {
   assert.match(html, /href="\.\/assets\//);
   assert.match(html, /content="\.\/og\.jpg"/);
   assert.match(html, /rel="alternate" type="application\/rss\+xml"/);
-  assert.doesNotMatch(html, /_next|_vinext|__OG_IMAGE__|__SITE_URL__/);
+  assert.doesNotMatch(html, /_next|_vinext|__[A-Z_]+__/);
 
   const [hero, socialCard] = await Promise.all([
     stat(new URL("dist/images/hero-placeholder.jpg", projectRoot)),
@@ -48,5 +48,22 @@ test("source contains real keyboard, search, archive, section and RSS navigation
   assert.match(source, /type="search"/);
   assert.match(source, /event\.key === "Escape"/);
   assert.match(source, /document\.title = title/);
+  assert.match(source, /publishedEntries/);
+  assert.match(source, /entryFromView/);
   assert.doesNotMatch(source, /从取景框之外开始|慢工具与当代生活|正在建立相机位移/);
+});
+
+test("content stays centralized, validated and empty until real work is supplied", async () => {
+  const [contentSource, entriesJson, siteJson] = await Promise.all([
+    readFile(new URL("app/content.ts", projectRoot), "utf8"),
+    readFile(new URL("content/entries.json", projectRoot), "utf8"),
+    readFile(new URL("content/site.json", projectRoot), "utf8"),
+  ]);
+
+  assert.deepEqual(JSON.parse(entriesJson), []);
+  assert.equal(JSON.parse(siteJson).title, "个人档案");
+  assert.match(contentSource, /validateEntries\(rawEntries\)/);
+  assert.match(contentSource, /slug 格式不正确/);
+  assert.match(contentSource, /日期格式不正确/);
+  assert.match(contentSource, /public\/images\/ 下的安全网页图片路径/);
 });

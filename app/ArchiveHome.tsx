@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  entriesFor,
+  entryFromView,
+  entryView,
   isViewId,
   photographyCategories,
+  publishedEntries,
   sections,
+  siteConfig,
+  type ArchiveEntry,
   type SectionId,
   type ViewId,
   writingCategories,
@@ -12,34 +18,63 @@ function Arrow() {
   return <span aria-hidden="true">↗</span>;
 }
 
-function PhotographyPreview({ open }: { open: () => void }) {
+function PhotographyPreview({ open, openEntry }: { open: () => void; openEntry: (slug: string) => void }) {
+  const works = entriesFor("photography").filter((entry) => entry.category === "摄影作品");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const current = works[currentIndex];
+
+  useEffect(() => {
+    if (works.length < 2) return;
+    const timer = window.setInterval(() => setCurrentIndex((index) => (index + 1) % works.length), 8_000);
+    return () => window.clearInterval(timer);
+  }, [works.length]);
+
+  const show = (direction: -1 | 1) => {
+    setCurrentIndex((index) => (index + direction + works.length) % works.length);
+  };
+
   return (
     <div className="preview photography-preview">
       <div className="preview-kicker">
-        <span>EXHIBITION WALL · LAYOUT STUDY</span>
+        <span>{current ? `SELECTED WORK · ${String(currentIndex + 1).padStart(3, "0")}` : "EXHIBITION WALL · LAYOUT STUDY"}</span>
         <span>4 × 5</span>
       </div>
 
       <figure className="photograph">
-        <button className="photograph-mat" type="button" onClick={open} aria-label="进入大画幅摄影栏目">
+        <button
+          className="photograph-mat"
+          type="button"
+          onClick={() => current ? openEntry(current.slug) : open()}
+          aria-label={current ? `阅读摄影作品：${current.title}` : "进入大画幅摄影栏目"}
+        >
           <img
-            src="./images/hero-placeholder.jpg"
-            alt="清晨平静海湾中的旧木栈桥——首页摄影占位图"
+            key={current?.slug ?? "placeholder"}
+            src={current ? `./${current.image}` : "./images/hero-placeholder.jpg"}
+            alt={current?.alt ?? "清晨平静海湾中的旧木栈桥——首页摄影占位图"}
           />
         </button>
         <figcaption>
           <div>
-            <p className="work-title">首页视觉占位图</p>
-            <p>正式摄影作品录入后替换</p>
+            <p className="work-title">{current?.title ?? "首页视觉占位图"}</p>
+            <p>{current ? [current.location, current.year].filter(Boolean).join(" · ") : "正式摄影作品录入后替换"}</p>
           </div>
-          <p className="work-process">FULL FRAME · NO CROP</p>
+          <p className="work-process">{current?.process ?? "FULL FRAME · NO CROP"}</p>
         </figcaption>
       </figure>
 
-      <div className="slideshow-status" aria-label="摄影作品状态">
-        <span>ONE LAYOUT STUDY ON VIEW</span>
-        <span>作品轮播将在正式照片录入后启用</span>
-      </div>
+      {works.length > 1 ? (
+        <div className="slideshow-controls" aria-label="摄影作品浏览">
+          <button type="button" aria-label="上一张作品" onClick={() => show(-1)}>←</button>
+          <div className="slide-progress"><span style={{ width: `${((currentIndex + 1) / works.length) * 100}%` }} /></div>
+          <span>{String(currentIndex + 1).padStart(2, "0")} / {String(works.length).padStart(2, "0")}</span>
+          <button type="button" aria-label="下一张作品" onClick={() => show(1)}>→</button>
+        </div>
+      ) : (
+        <div className="slideshow-status" aria-label="摄影作品状态">
+          <span>{current ? "ONE PUBLISHED WORK ON VIEW" : "ONE LAYOUT STUDY ON VIEW"}</span>
+          <span>{current ? "第二张作品发布后自动启用轮播" : "作品轮播将在正式照片录入后启用"}</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -68,6 +103,7 @@ function AboutPreview({ open }: { open: () => void }) {
 }
 
 function WritingPreview({ open }: { open: () => void }) {
+  const recent = entriesFor("writing").slice(0, 3);
   return (
     <div className="preview writing-preview">
       <div className="preview-kicker">
@@ -79,25 +115,39 @@ function WritingPreview({ open }: { open: () => void }) {
           <p className="eyebrow">随笔 / 散文 / 随想 / 社会评论</p>
           <h2>文字</h2>
         </div>
-        <div className="preview-empty-state">
+        {recent.length > 0 ? (
+          <ol className="writing-list">
+            {recent.map((entry) => (
+              <li key={entry.slug}>
+                <button type="button" onClick={() => window.location.hash = entryView(entry.slug)}>
+                  <span className="article-date">{formatDate(entry.date, "short")}</span>
+                  <span className="article-title">{entry.title}</span>
+                  <span className="article-type">{entry.category}</span>
+                  <Arrow />
+                </button>
+              </li>
+            ))}
+          </ol>
+        ) : <div className="preview-empty-state">
           <span className="empty-index">—</span>
           <div>
             <h3>文字尚未公开</h3>
             <p>第一篇文章录入后，将在这里显示标题、日期、类别与摘录。</p>
           </div>
           <button className="text-link" type="button" onClick={open}>查看栏目结构 <Arrow /></button>
-        </div>
+        </div>}
       </div>
     </div>
   );
 }
 
 function DevlogPreview({ open }: { open: () => void }) {
+  const latest = entriesFor("devlog")[0];
   return (
     <div className="preview devlog-preview">
       <div className="preview-kicker light">
         <span>LARGE FORMAT CAMERA SIMULATOR</span>
-        <span>PROJECT INDEX</span>
+        <span>{latest ? `BUILD ${latest.version}` : "PROJECT INDEX"}</span>
       </div>
       <div className="simulator-stage">
         <div className="ground-glow" />
@@ -115,8 +165,8 @@ function DevlogPreview({ open }: { open: () => void }) {
       </div>
       <div className="devlog-footer">
         <div>
-          <p className="eyebrow">DEVELOPMENT RECORD · 待录入</p>
-          <h2>记录一台虚拟大画幅相机的设计、试验与版本变化。</h2>
+          <p className="eyebrow">{latest ? `LATEST UPDATE · ${formatDate(latest.date, "yearMonth")}` : "DEVELOPMENT RECORD · 待录入"}</p>
+          <h2>{latest?.title ?? "记录一台虚拟大画幅相机的设计、试验与版本变化。"}</h2>
         </div>
         <button className="text-link light-link" type="button" onClick={open}>查看开发日志 <Arrow /></button>
       </div>
@@ -130,7 +180,7 @@ function Preview({ active, navigate }: { active: SectionId; navigate: (view: Vie
     <div key={active} className="preview-transition">
       {active === "about" && <AboutPreview open={open} />}
       {active === "writing" && <WritingPreview open={open} />}
-      {active === "photography" && <PhotographyPreview open={open} />}
+      {active === "photography" && <PhotographyPreview open={open} openEntry={(slug) => navigate(entryView(slug))} />}
       {active === "devlog" && <DevlogPreview open={open} />}
     </div>
   );
@@ -150,6 +200,7 @@ function EmptyCollection({ label }: { label: string }) {
 
 function SectionView({ id, navigate }: { id: SectionId; navigate: (view: ViewId) => void }) {
   const section = sections.find((item) => item.id === id)!;
+  const sectionEntries = id === "about" ? [] : entriesFor(id);
   const categories = id === "writing" ? writingCategories : id === "photography" ? photographyCategories : [];
 
   return (
@@ -181,11 +232,13 @@ function SectionView({ id, navigate }: { id: SectionId; navigate: (view: ViewId)
               <li key={category}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <strong>{category}</strong>
-                <span>0</span>
+                <span>{sectionEntries.filter((entry) => "category" in entry && entry.category === category).length}</span>
               </li>
             ))}
           </ol>
-          <EmptyCollection label={id === "writing" ? "文章" : "摄影作品"} />
+          {sectionEntries.length > 0
+            ? <EntryIndex entries={sectionEntries} navigate={navigate} />
+            : <EmptyCollection label={id === "writing" ? "文章" : "摄影作品"} />}
         </div>
       )}
 
@@ -196,10 +249,57 @@ function SectionView({ id, navigate }: { id: SectionId; navigate: (view: ViewId)
           </div>
           <div className="detail-copy">
             <p className="detail-lead">开发日志将按日期与版本记录问题、判断、实现过程和图像试验。</p>
-            <EmptyCollection label="开发日志" />
+            {sectionEntries.length > 0
+              ? <EntryIndex entries={sectionEntries} navigate={navigate} />
+              : <EmptyCollection label="开发日志" />}
           </div>
         </div>
       )}
+    </article>
+  );
+}
+
+function EntryIndex({ entries: items, navigate }: { entries: ArchiveEntry[]; navigate: (view: ViewId) => void }) {
+  return (
+    <ol className="entry-index">
+      {items.map((entry) => (
+        <li key={entry.slug}>
+          <button type="button" onClick={() => navigate(entryView(entry.slug))}>
+            <span>{formatDate(entry.date, "short")}</span>
+            <strong>{entry.title}</strong>
+            <Arrow />
+          </button>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function EntryView({ entry, navigate }: { entry: ArchiveEntry; navigate: (view: ViewId) => void }) {
+  const section = sections.find((item) => item.id === entry.section)!;
+  const photograph = entry.section === "photography" ? entry : undefined;
+  const devlogImage = entry.section === "devlog" && entry.image ? entry : undefined;
+  return (
+    <article className={`content-view entry-view entry-${entry.section}`}>
+      <div className="content-rail">
+        <button className="back-link" type="button" onClick={() => navigate(entry.section)}>← 返回{section.title}</button>
+        <span>{formatDate(entry.date, "full")}</span>
+      </div>
+      <header className="entry-header">
+        <p className="eyebrow">{section.english}{entry.section === "devlog" ? ` · BUILD ${entry.version}` : "category" in entry ? ` · ${entry.category}` : ""}</p>
+        <h1>{entry.title}</h1>
+        <p>{entry.summary}</p>
+      </header>
+      {photograph && (
+        <figure className="entry-photograph">
+          <img src={`./${photograph.image}`} alt={photograph.alt} />
+          <figcaption>{photograph.location} · {photograph.year}<span>{photograph.process}</span></figcaption>
+        </figure>
+      )}
+      {devlogImage && <img className="entry-devlog-image" src={`./${devlogImage.image}`} alt={devlogImage.imageAlt ?? "开发日志配图"} />}
+      <div className="prose">
+        {entry.body.map((paragraph, index) => <p key={`${entry.slug}-${index}`}>{paragraph}</p>)}
+      </div>
     </article>
   );
 }
@@ -216,18 +316,35 @@ function ArchiveView({ navigate }: { navigate: (view: ViewId) => void }) {
         <h1>总目录</h1>
         <p>所有公开内容最终会依栏目、类别和年份汇集于此。</p>
       </header>
-      <ol className="archive-list">
-        {sections.map((section) => (
-          <li key={section.id}>
-            <button type="button" onClick={() => navigate(section.id)}>
-              <span>{section.number}</span>
-              <span><strong>{section.title}</strong><small>{section.english}</small></span>
-              <span>{section.note}</span>
-              <Arrow />
-            </button>
-          </li>
-        ))}
-      </ol>
+      {publishedEntries.length > 0 ? (
+        <ol className="archive-list">
+          {publishedEntries.map((entry, index) => (
+            <li key={entry.slug}>
+              <button type="button" onClick={() => navigate(entryView(entry.slug))}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <span><strong>{entry.title}</strong><small>{sections.find((section) => section.id === entry.section)?.english}</small></span>
+                <span>{formatDate(entry.date, "full")}</span>
+                <Arrow />
+              </button>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <>
+          <ol className="archive-list">
+            {sections.map((section) => (
+              <li key={section.id}>
+                <button type="button" onClick={() => navigate(section.id)}>
+                  <span>{section.number}</span>
+                  <span><strong>{section.title}</strong><small>{section.english}</small></span>
+                  <span>内容待录入</span>
+                  <Arrow />
+                </button>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
     </section>
   );
 }
@@ -236,16 +353,27 @@ function SearchView({ navigate }: { navigate: (view: ViewId) => void }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const normalized = query.trim().toLocaleLowerCase("zh-CN");
+  const searchItems = useMemo(() => [
+    ...sections.map((section) => ({
+      id: section.id as ViewId,
+      number: section.number,
+      title: section.title,
+      summary: section.summary,
+      searchText: [section.title, section.english, section.summary, ...section.keywords].join(" "),
+    })),
+    ...publishedEntries.map((entry, index) => ({
+      id: entryView(entry.slug) as ViewId,
+      number: `A${String(index + 1).padStart(2, "0")}`,
+      title: entry.title,
+      summary: entry.summary,
+      searchText: [entry.title, entry.summary, ...entry.keywords, ...entry.body].join(" "),
+    })),
+  ], []);
   const matches = useMemo(
     () => normalized
-      ? sections.filter((section) =>
-          [section.title, section.english, section.summary, ...section.keywords]
-            .join(" ")
-            .toLocaleLowerCase("zh-CN")
-            .includes(normalized),
-        )
-      : sections,
-    [normalized],
+      ? searchItems.filter((item) => item.searchText.toLocaleLowerCase("zh-CN").includes(normalized))
+      : searchItems,
+    [normalized, searchItems],
   );
 
   useEffect(() => inputRef.current?.focus(), []);
@@ -269,11 +397,11 @@ function SearchView({ navigate }: { navigate: (view: ViewId) => void }) {
         />
         <p className="search-count" aria-live="polite">{normalized ? `${matches.length} 项结果` : "可搜索当前四个栏目"}</p>
         <ol className="search-results">
-          {matches.map((section) => (
-            <li key={section.id}>
-              <button type="button" onClick={() => navigate(section.id)}>
-                <span>{section.number}</span>
-                <span><strong>{section.title}</strong><small>{section.summary}</small></span>
+          {matches.map((item) => (
+            <li key={item.id}>
+              <button type="button" onClick={() => navigate(item.id)}>
+                <span>{item.number}</span>
+                <span><strong>{item.title}</strong><small>{item.summary}</small></span>
                 <Arrow />
               </button>
             </li>
@@ -291,15 +419,18 @@ function routeFromHash(): ViewId {
 }
 
 function setDocumentMetadata(view: ViewId) {
+  const entry = entryFromView(view);
   const section = sections.find((item) => item.id === view);
-  const title = section
-    ? `${section.title}｜个人档案`
+  const title = entry
+    ? `${entry.title}｜${siteConfig.title}`
+    : section
+    ? `${section.title}｜${siteConfig.title}`
     : view === "archive"
-      ? "总目录｜个人档案"
+      ? `总目录｜${siteConfig.title}`
       : view === "search"
-        ? "搜索｜个人档案"
-        : "个人档案｜文字、摄影与模拟器";
-  const description = section?.summary ?? "一处收藏文字、大画幅摄影与模拟器开发过程的个人档案。";
+        ? `搜索｜${siteConfig.title}`
+        : siteConfig.browserTitle;
+  const description = entry?.summary ?? section?.summary ?? siteConfig.description;
   document.title = title;
   document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute("content", description);
 }
@@ -344,7 +475,7 @@ export function ArchiveHome() {
 
   useEffect(() => {
     const format = () => setClock(new Intl.DateTimeFormat("en-AU", {
-      timeZone: "Australia/Sydney",
+          timeZone: siteConfig.timeZone,
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
@@ -358,8 +489,8 @@ export function ArchiveHome() {
     <main className="site-shell">
       <header className="topbar">
         <button className="identity" type="button" onClick={() => navigate("home")} aria-label="返回首页">
-          <span className="identity-cn">个人档案</span>
-          <span className="identity-en">WRITING · PHOTOGRAPHY · MAKING</span>
+          <span className="identity-cn">{siteConfig.title}</span>
+          <span className="identity-en">{siteConfig.subtitle}</span>
         </button>
         <nav className="utility-nav" aria-label="网站工具">
           <button type="button" aria-current={view === "archive" ? "page" : undefined} onClick={() => navigate("archive")}>ARCHIVE</button>
@@ -397,7 +528,7 @@ export function ArchiveHome() {
               })}
             </nav>
             <footer className="location-strip">
-              <span>SYDNEY</span><span className="location-dot" aria-hidden="true" /><span>{clock} AEST</span><span>2026</span>
+              <span>{siteConfig.location}</span><span className="location-dot" aria-hidden="true" /><span>{clock} {siteConfig.timeZoneLabel}</span><span>{new Date().getFullYear()}</span>
             </footer>
           </aside>
 
@@ -409,7 +540,14 @@ export function ArchiveHome() {
 
       {view === "archive" && <ArchiveView navigate={navigate} />}
       {view === "search" && <SearchView navigate={navigate} />}
-      {view !== "home" && view !== "archive" && view !== "search" && <SectionView id={view} navigate={navigate} />}
+      {view !== "home" && view !== "archive" && view !== "search" && entryFromView(view) && <EntryView entry={entryFromView(view)!} navigate={navigate} />}
+      {view !== "home" && view !== "archive" && view !== "search" && !entryFromView(view) && <SectionView id={view as SectionId} navigate={navigate} />}
     </main>
   );
+}
+
+function formatDate(date: string, style: "short" | "yearMonth" | "full") {
+  if (style === "short") return date.slice(2, 7).replace("-", ".");
+  if (style === "yearMonth") return date.slice(0, 7).replace("-", ".");
+  return date.replaceAll("-", ".");
 }
