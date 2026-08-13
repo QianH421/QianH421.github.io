@@ -430,7 +430,6 @@ a:focus-visible {
   width: 100%;
   max-height: 68vh;
   object-fit: contain;
-  filter: grayscale(1) contrast(0.92);
 }
 
 .about-image span {
