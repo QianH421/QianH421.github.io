@@ -41,6 +41,9 @@ test("source contains real keyboard, search, archive, section and RSS navigation
   );
 
   assert.match(source, /onFocus=\{\(\) => setActive\(section\.id\)\}/);
+  assert.match(source, /useState<SectionId>\("photography"\)/);
+  assert.match(source, /onMouseMove=\{\(\) => setActive\(section\.id\)\}/);
+  assert.doesNotMatch(source, /onMouseEnter=\{\(\) => setActive\(section\.id\)\}/);
   assert.match(source, /onClick=\{\(\) => navigate\(section\.id\)\}/);
   assert.match(source, /onClick=\{\(\) => navigate\("archive"\)\}/);
   assert.match(source, /onClick=\{\(\) => navigate\("search"\)\}/);

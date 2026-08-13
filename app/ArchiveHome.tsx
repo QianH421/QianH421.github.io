@@ -103,8 +103,9 @@ function AboutPreview({ open }: { open: () => void }) {
       <div className="about-composition">
         <div className="about-image">
           <img
-            src="./images/royal-national-park/rnp-1.jpg"
+            src="./images/royal-national-park/rnp-1.jpg?v=20260813-color"
             alt="皇家国家公园摄影作品 RNP 1"
+            style={{ filter: "none", opacity: 1, mixBlendMode: "normal" }}
           />
           <span>RNP 1 · ROYAL NATIONAL PARK</span>
         </div>
@@ -536,7 +537,7 @@ export function ArchiveHome() {
                     type="button"
                     aria-current={isActive ? "true" : undefined}
                     aria-label={`${section.title}：预览并进入栏目`}
-                    onMouseEnter={() => setActive(section.id)}
+                    onMouseMove={() => setActive(section.id)}
                     onFocus={() => setActive(section.id)}
                     onClick={() => navigate(section.id)}
                   >
