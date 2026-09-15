@@ -48,7 +48,7 @@ export default defineConfig(({ mode }) => {
             .sort((a, b) => b.date.localeCompare(a.date));
           const buildDate = new Date().toUTCString();
           const channelItems = published.map((entry) => rssItem(entry, canonicalUrl)).join("");
-          const rss = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>${escapeXml(site.title)}</title><link>${escapeXml(canonicalUrl)}</link><description>${escapeXml(site.description)}</description><language>zh-CN</language><lastBuildDate>${buildDate}</lastBuildDate>${channelItems}</channel></rss>\n`;
+          const rss = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>${escapeXml(site.title)}</title><link>${escapeXml(canonicalUrl)}</link><description>${escapeXml(site.description)}</description><language>en-AU</language><lastBuildDate>${buildDate}</lastBuildDate>${channelItems}</channel></rss>\n`;
           const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${escapeXml(canonicalUrl)}</loc></url></urlset>\n`;
           const robots = `User-agent: *\nAllow: /\nSitemap: ${canonicalUrl}/sitemap.xml\n`;
           await Promise.all([
@@ -74,14 +74,14 @@ function rssItem(entry: ArchiveEntry, siteUrl: string) {
 
 async function writeStaticFallbacks(siteUrl: string, site: SiteConfig) {
   const sections = [
-    ["works", "大画幅摄影作品"],
-    ["series", "皇家国家公园"],
+    ["works", "Works"],
+    ["series", "Royal National Park"],
   ];
   await Promise.all(sections.map(async ([slug, title]) => {
     const directory = resolve("dist", slug);
     await mkdir(directory, { recursive: true });
     const target = `${siteUrl}/#${slug}`;
-    const html = `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(site.description)}"><title>${escapeHtml(title)}｜${escapeHtml(site.title)}</title><link rel="canonical" href="${escapeHtml(target)}"><meta http-equiv="refresh" content="0;url=${escapeHtml(target)}"><script>location.replace(${JSON.stringify(target)});</script></head><body><p><a href="${escapeHtml(target)}">进入${escapeHtml(title)}</a></p></body></html>`;
+    const html = `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(site.description)}"><title>${escapeHtml(title)} | ${escapeHtml(site.title)}</title><link rel="canonical" href="${escapeHtml(target)}"><meta http-equiv="refresh" content="0;url=${escapeHtml(target)}"><script>location.replace(${JSON.stringify(target)});</script></head><body><p><a href="${escapeHtml(target)}">Enter ${escapeHtml(title)}</a></p></body></html>`;
     await writeFile(resolve(directory, "index.html"), html);
   }));
 }

@@ -7,8 +7,8 @@ const projectRoot = new URL("../", import.meta.url);
 test("build emits a self-contained GitHub Pages portfolio", async () => {
   const html = await readFile(new URL("dist/index.html", projectRoot), "utf8");
 
-  assert.match(html, /<html lang="zh-CN">/);
-  assert.match(html, /<title>在更慢的目光里观看｜大画幅摄影<\/title>/);
+  assert.match(html, /<html lang="en">/);
+  assert.match(html, /<title>Looking with a Slower Gaze \| Large Format Photography<\/title>/);
   assert.match(html, /src="\.\/assets\//);
   assert.match(html, /href="\.\/assets\//);
   assert.match(html, /content="(?:\.\/|https:\/\/[^"]+\/)og\.png"/);
@@ -39,6 +39,12 @@ test("portfolio exposes all nine works and accessible image viewing", async () =
   assert.match(source, /event\.key === "Escape"/);
   assert.match(source, /event\.key === "ArrowLeft"/);
   assert.match(source, /event\.key === "ArrowRight"/);
+  assert.match(source, /useState<Language>\("en"\)/);
+  assert.match(source, /aria-pressed=\{language === "zh"\}/);
+  assert.match(source, /What you photograph is exactly what you see\./);
+  assert.match(source, /WRITTEN BY THE ARTIST · NOT AI-GENERATED/);
+  assert.match(source, /你拍到的就是你看到的东西。/);
+  assert.match(source, /作者原创 · 非 AI 生成内容/);
   assert.match(source, /loading=\{index < 2 \? "eager" : "lazy"\}/);
   assert.doesNotMatch(source, /文字尚未公开|大画幅模拟器|个人档案/);
 });
@@ -58,7 +64,7 @@ test("the Royal National Park series contains nine web-sized photographs", async
     const file = await stat(new URL(`public/${image.src}`, projectRoot));
     assert.ok(file.size < 2_000_000, `${image.src} should be web-sized`);
   }
-  assert.equal(JSON.parse(siteJson).title, "大画幅摄影");
+  assert.equal(JSON.parse(siteJson).title, "Large Format Photography");
   assert.match(contentSource, /validateEntries\(rawEntries\)/);
   assert.match(contentSource, /至少需要一张摄影图片/);
 });
