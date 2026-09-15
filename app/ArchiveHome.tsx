@@ -27,6 +27,7 @@ const copy = {
     heroKicker: "LARGE FORMAT PHOTOGRAPHY · 4 × 5",
     heroLines: ["Looking with", "a slower gaze."],
     intro: "A series of large-format photographs made in Royal National Park. Nine photographs, presented full frame and uncropped.",
+    aiGenerated: "AI-GENERATED PLACEHOLDER",
     viewWorks: "View the works",
     seriesKicker: "SERIES 001 · 2026",
     seriesTitle: "Royal National Park",
@@ -65,6 +66,7 @@ const copy = {
     heroKicker: "LARGE FORMAT PHOTOGRAPHY · 4 × 5",
     heroLines: ["在更慢的", "目光里观看。"],
     intro: "一组拍摄于皇家国家公园的大画幅摄影作品。九张照片，保留完整画幅，不作裁切。",
+    aiGenerated: "AI 生成 · 占位文字",
     viewWorks: "观看作品",
     seriesKicker: "SERIES 001 · 2026",
     seriesTitle: "皇家国家公园",
@@ -184,6 +186,7 @@ export function ArchiveHome() {
           <p className="eyebrow">{text.heroKicker}</p>
           <h1 id="hero-title">{text.heroLines[0]}<br />{text.heroLines[1]}</h1>
           <p className="intro">{text.intro}</p>
+          <p className="ai-generated-mark">{text.aiGenerated}</p>
           <a className="view-link" href="#works">
             {text.viewWorks} <span aria-hidden="true">↓</span>
           </a>
@@ -205,7 +208,8 @@ export function ArchiveHome() {
           <p className="series-english">{text.seriesSecondary}</p>
         </div>
         <div className="series-note">
-          <p>{text.seriesNote}</p>
+          <p className="series-prose">{text.seriesNote}</p>
+          <p className="ai-generated-mark">{text.aiGenerated}</p>
           <dl>
             <div><dt>{text.location}</dt><dd>{series.location}</dd></div>
             <div><dt>{text.date}</dt><dd>{text.dateValue}</dd></div>
