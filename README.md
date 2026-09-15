@@ -1,16 +1,18 @@
-# 个人档案
+# 大画幅摄影作品站
 
-一处收藏文字、大画幅摄影与模拟器开发过程的个人网站。目前完成了首页、栏目、归档、搜索和静态发布系统，并已收入“皇家国家公园”摄影系列。
+一个以完整画幅展示为核心的单页摄影作品站。目前收录“皇家国家公园”系列九张 4×5 摄影作品。
 
-## 录入内容
+## 网站内容
 
-站点资料统一放在 `content/`：
+- 首屏作品与系列简介；
+- 九张作品的沉浸式纵向展示；
+- 点击照片进入全屏观看，支持键盘方向键与 ESC；
+- 适配手机和桌面屏幕；
+- 自带 GitHub Pages 自动发布流程。
 
-- 修改 `content/site.json` 可以替换站名、说明、所在地与时区；
-- 在 `content/entries.json` 添加文章、摄影作品或开发日志；
-- 发布内容会自动进入栏目、总目录、搜索与 RSS；
-- 摄影系列达到两张图片后，首页会自动启用约 8 秒一次的完整画幅轮播；
-- 具体格式和示例见 `content/README.md`。
+## 更换或增加作品
+
+照片位于 `public/images/royal-national-park/`，作品标题、替代文字和拍摄信息位于 `content/entries.json`。详细格式见 `content/README.md`。
 
 ## 本地预览
 
@@ -23,27 +25,13 @@ pnpm dev
 
 ## 发布到 GitHub Pages
 
-仓库已经包含自动发布流程。准备上线时：
+仓库已包含自动发布流程。在 GitHub 仓库的 **Settings → Pages → Build and deployment** 中选择 **GitHub Actions**；此后每次推送到 `main` 都会自动更新网站。
 
-1. 把项目上传至 `QianH421/QianH421.github.io`，并将默认分支设为 `main`；
-2. 在仓库的 **Settings → Pages → Build and deployment** 中选择 **GitHub Actions**；
-3. 推送到 `main` 后，GitHub 会自动构建并发布 `dist`；
-4. 域名确定后，在同一页面的 **Custom domain** 中填写域名并启用 **Enforce HTTPS**；
-5. 按 GitHub 页面显示的目标值，在域名服务商处添加 DNS 记录。
+默认公开网址为 `https://qianh421.github.io`。
 
-默认公开网址为 `https://qianh421.github.io`。本项目使用相对资源路径，因此以后切换到独立域名也不需要修改首页代码。
-
-## 发布前仍需替换
-
-- “个人档案”与页面说明；
-- 摄影作品的正式标题与胶片信息；
-- 简介、文章标题和开发日志；
-- 独立域名。
-
-## 常用命令
+## 检查
 
 ```bash
-pnpm dev       # 本地预览
-pnpm test      # 构建并检查静态产物
-pnpm lint      # 检查代码
+pnpm test
+pnpm lint
 ```

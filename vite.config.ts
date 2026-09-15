@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       {
-        name: "personal-archive-static-metadata",
+        name: "large-format-portfolio-static-metadata",
         async buildStart() {
           const [rawSite, rawEntries] = await Promise.all([
             readJson<unknown>("content/site.json"),
@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
           }));
         },
         transformIndexHtml(html) {
-          const ogImage = siteUrl ? `${siteUrl}/og.jpg` : "./og.jpg";
+          const ogImage = siteUrl ? `${siteUrl}/og.png` : "./og.png";
           return html
             .replaceAll("__OG_IMAGE__", escapeHtml(ogImage))
             .replaceAll("__SITE_URL__", escapeHtml(canonicalUrl))
@@ -68,17 +68,14 @@ async function readJson<T>(path: string): Promise<T> {
 }
 
 function rssItem(entry: ArchiveEntry, siteUrl: string) {
-  const link = `${siteUrl}/#entry/${entry.slug}`;
+  const link = `${siteUrl}/#series`;
   return `<item><title>${escapeXml(entry.title)}</title><link>${escapeXml(link)}</link><guid isPermaLink="true">${escapeXml(link)}</guid><pubDate>${new Date(`${entry.date}T00:00:00Z`).toUTCString()}</pubDate><description>${escapeXml(entry.summary)}</description><category>${escapeXml(entry.section)}</category></item>`;
 }
 
 async function writeStaticFallbacks(siteUrl: string, site: SiteConfig) {
   const sections = [
-    ["about", "个人简介"],
-    ["writing", "文字"],
-    ["photography", "大画幅摄影"],
-    ["devlog", "大画幅模拟器"],
-    ["archive", "总目录"],
+    ["works", "大画幅摄影作品"],
+    ["series", "皇家国家公园"],
   ];
   await Promise.all(sections.map(async ([slug, title]) => {
     const directory = resolve("dist", slug);
