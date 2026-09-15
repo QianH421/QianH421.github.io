@@ -45,8 +45,8 @@ test("portfolio exposes all nine works and accessible image viewing", async () =
   assert.match(source, /WRITTEN BY THE ARTIST · NOT AI-GENERATED/);
   assert.match(source, /你拍到的就是你看到的东西。/);
   assert.match(source, /作者原创 · 非 AI 生成内容/);
-  assert.match(source, /AI-GENERATED PLACEHOLDER/);
-  assert.match(source, /AI 生成 · 占位文字/);
+  assert.match(source, /AI-generated — I haven't figured out what to write yet\./);
+  assert.match(source, /ai生成，我还没想好写什么。/);
   assert.equal((source.match(/className="ai-generated-mark"/g) ?? []).length, 2);
   assert.match(source, /loading=\{index < 2 \? "eager" : "lazy"\}/);
   assert.doesNotMatch(source, /文字尚未公开|大画幅模拟器|个人档案/);
